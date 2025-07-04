@@ -11,6 +11,7 @@ import AppLogo from './AppLogo.vue';
 
 // ✅ Obtiene permisos (ajusta según cómo los pases)
 const { props } = usePage();
+const roles = props.roles as string[]; // <-- Cambia a roles
 const permissions = props.permissions as string[]; // Asegúrate de pasarlos desde tu controlador
 
 const mainNavItems = computed<NavItem[]>(() => {
@@ -21,16 +22,19 @@ const mainNavItems = computed<NavItem[]>(() => {
         href: '/dashboard',
         icon: LayoutGrid,
     });
-    items.push({
-        title: 'Carreras',
-        href: '/carreras',
-        icon: LayoutGrid,
-    });
-
-    if (permissions.includes('ver usuarios')) {
+// menu de opciones para super admin
+    if (roles.includes('super-admin')) {
         items.push({
             title: 'Users',
             href: '/users',
+            icon: LayoutGrid,
+        });
+    }
+// menu de opciones para student
+    if (roles.includes('Student')) {
+        items.push({
+            title: 'Settings',
+            href: '/settings',
             icon: LayoutGrid,
         });
     }

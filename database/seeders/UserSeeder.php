@@ -25,9 +25,14 @@ class UserSeeder extends Seeder
     Permission::create(['name' => 'editar libros']);
     Permission::create(['name' => 'eliminar libros']);
 
+    //Permisos para rol Administrador
+    Permission::create(['name' => 'ver users']);
+    Permission::create(['name' => 'modificar roles']);
+
     // Crear roles primero
     $roleAdmin = Role::create(['name' => 'super-admin']);
     $roleStudent = Role::create(['name' => 'student']);
+    $roleAdministrator = Role::create(['name' => 'administrator']);
 
     // Crear usuarios
     $adminUser = User::query()->create([
@@ -47,10 +52,12 @@ class UserSeeder extends Seeder
     $adminUser->assignRole($roleAdmin);
     $studentUser->assignRole($roleStudent);
 
-    // Asignar permisos
-    $permissionsAdmin = Permission::query()->pluck('name');
-    $roleAdmin->syncPermissions($permissionsAdmin);
-    $roleStudent->syncPermissions(['ver librosss']);
+// Asignar permisos
+$permissionsAdmin = Permission::query()->pluck('name');
+$roleAdmin->syncPermissions($permissionsAdmin);
+$roleStudent->syncPermissions(['ver libros']); // Corregido
+$roleAdministrator->syncPermissions(['ver users', 'modificar roles']);
+
 }
 
 }

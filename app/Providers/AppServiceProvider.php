@@ -25,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         return $user->hasRole('super-admin') ? true : null;
     });
      Inertia::share([
+    'roles' => fn () => optional(Auth::user())->getRoleNames() ?? [],
     'permissions' => fn () => optional(Auth::user())->getAllPermissions()?->pluck('name') ?? [],
 ]);
 

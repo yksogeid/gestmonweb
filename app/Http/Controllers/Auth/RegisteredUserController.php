@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -30,11 +31,12 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([+
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $request->validate([
+    'name' => 'required|string|max:255',
+    'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+    'password' => ['required', 'confirmed', Rules\Password::defaults()],
+]);
+
 
         $user = User::create([
             'name' => $request->name,
@@ -48,4 +50,38 @@ class RegisteredUserController extends Controller
 
         return to_route('dashboard');
     }
+
+    public function index()
+    {
+        $users = \App\Models\User::with('roles')->get();
+        $roles = Role::pluck('name'); // Trae todos los nombres de roles
+
+        return inertia('users/index', [
+            'users' => $users->map(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->roles->pluck('name')->first(), // Primer rol asignado
+                ];
+            }),
+            'roles' => $roles,
+        ]);
+    }
+    
+public function updateRole(Request $request, User $user)
+{
+    $request->validate([
+        'role' => 'required|exists:roles,name',
+    ]);
+
+    $user->syncRoles([$request->role]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Rol actualizado correctamente.',
+    ]);
+}
+
+
 }
