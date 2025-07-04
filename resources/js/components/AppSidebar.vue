@@ -1,20 +1,42 @@
 <script setup lang="ts">
+import { computed } from 'vue'; // ✅ Falta importar computed
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3'; // ✅ Importa usePage si obtienes permisos desde Inertia
 import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
-    {
+// ✅ Obtiene permisos (ajusta según cómo los pases)
+const { props } = usePage();
+const permissions = props.permissions as string[]; // Asegúrate de pasarlos desde tu controlador
+
+const mainNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [];
+
+    items.push({
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
-    },
-];
+    });
+    items.push({
+        title: 'Carreras',
+        href: '/carreras',
+        icon: LayoutGrid,
+    });
+
+    if (permissions.includes('ver usuarios')) {
+        items.push({
+            title: 'Users',
+            href: '/users',
+            icon: LayoutGrid,
+        });
+    }
+
+    return items;
+});
 
 const footerNavItems: NavItem[] = [
     {
@@ -53,5 +75,8 @@ const footerNavItems: NavItem[] = [
             <NavUser />
         </SidebarFooter>
     </Sidebar>
-    <slot />
+    <!-- ✅ Slot dentro de un contenedor para mantener consistencia -->
+    <div>
+        <slot />
+    </div>
 </template>
